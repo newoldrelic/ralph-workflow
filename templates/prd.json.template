@@ -1,0 +1,34 @@
+{
+  "project": "Project Name",
+  "branchName": "feature/branch-name",
+  "description": "Brief description of what this feature does",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "First story title",
+      "description": "As a [user type], I want [feature] so that [benefit].",
+      "acceptanceCriteria": [
+        "First verifiable criterion",
+        "Second verifiable criterion",
+        "npm run typecheck passes"
+      ],
+      "priority": 1,
+      "dependsOn": [],
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Second story (depends on first)",
+      "description": "As a [user type], I want [feature] so that [benefit].",
+      "acceptanceCriteria": [
+        "Criterion that can only be verified after US-001",
+        "npm run typecheck passes"
+      ],
+      "priority": 2,
+      "dependsOn": ["US-001"],
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
