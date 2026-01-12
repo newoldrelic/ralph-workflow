@@ -9,52 +9,86 @@ Ralph is a bash loop that spawns fresh Claude instances for each iteration. Memo
 ## Quick Start
 
 ```bash
-# Copy scripts to your project
-cp ralph*.sh /path/to/your/project/
-cd /path/to/your/project/
-chmod +x ralph*.sh
+# In any project, run the init skill (handles PRD + review + setup)
+/ralph-init "Your feature description"
 
-# Follow the workflow below
+# Then exit and run implementation in a separate terminal
+./ralph.sh 50
+
+# When complete, run code review
+/ralph-review
+# Or for large projects:
+./ralph-code-review.sh 25
 ```
 
 ## The Complete Workflow
 
 ```
-thought/idea
+/ralph-init "feature description"
     ↓
-/prd skill → PRD.md (structured requirements)
+[Single Context - Skill]
+├── Creates PRD (asks clarifying questions)
+├── Runs PRD review (4 personas in-context)
+├── Gets human approval
+├── Converts to prd.json
+├── Inits git branch, progress.txt
+└── Says "Exit and run ./ralph.sh"
     ↓
-[HUMAN GATE 1] Review PRD, approve or request changes
+./ralph.sh 50  (separate terminal - fresh context per iteration)
     ↓
-./ralph-prd-review.sh → PRD Review Loop (rotating personas)
+/ralph-review or ./ralph-code-review.sh
     ↓
-[HUMAN GATE 2] Review persona feedback, finalize prd.json
-    ↓
-git checkout -b feature/xyz (work on branch, not main)
-    ↓
-./ralph.sh → Implementation Loop (build features)
-    ↓
-[HUMAN GATE 3] Quick sanity check of implementation
-    ↓
-./ralph-code-review.sh → Code Review Loop (rotating personas)
-    ↓
-[HUMAN GATE 4] Final approval, create PR, merge to main
+Human final approval → Merge
 ```
 
-## Human Gates
+## Skills vs Scripts
 
-| Gate | What You Review | Typical Time |
-|------|-----------------|--------------|
-| **Gate 1** | Is the PRD capturing what I actually want? | 5-10 min |
-| **Gate 2** | Did personas raise valid concerns? Is prd.json ready? | 10-15 min |
-| **Gate 3** | Does the implementation look roughly right? | 5 min |
-| **Gate 4** | Is the polished code ready for production? | 15-30 min |
+| Tool | Context | Best For |
+|------|---------|----------|
+| `/ralph-init` | Single (accumulated) | Init phase - PRD creation, review, setup |
+| `./ralph.sh` | Fresh per iteration | Implementation - could be 50+ iterations |
+| `/ralph-review` | Single (accumulated) | Code review for smaller projects (<20 stories) |
+| `./ralph-code-review.sh` | Fresh per iteration | Code review for larger projects |
+
+**Why the split?**
+- Init benefits from accumulated context (each persona sees what others found)
+- Implementation needs fresh context (could exceed context window)
+- Code review depends on project size
+
+## Installation
+
+### 1. Copy Scripts to Your Project
+
+```bash
+cp ~/Documents/GitHub/ralph-workflow/ralph*.sh ./
+chmod +x ralph*.sh
+```
+
+### 2. Install Skills
+
+The skills should be at:
+- `~/.claude/skills/ralph-init/SKILL.md`
+- `~/.claude/skills/ralph-review/SKILL.md`
+- `~/.claude/skills/ralph-prd-converter/SKILL.md`
+
+Copy from this repo or create manually.
+
+### 3. Prerequisites
+
+- Claude CLI: `npm install -g @anthropic-ai/claude-code`
+- Existing skills that Ralph leverages:
+  - `/prd` - PRD generation
+  - `/frontend-design` - UI/UX review
+  - `/test-driven-development` - Testing principles
+  - `/verification-before-completion` - Acceptance criteria verification
+  - `/requesting-code-review` - Code review principles
+  - `/systematic-debugging` - Debugging approach
 
 ## Scripts
 
 ### ralph.sh - Implementation Loop
 
-Builds features defined in prd.json. Each iteration:
+Each iteration:
 1. Reads `@prd.json @progress.txt` for full context
 2. Picks highest-priority incomplete story
 3. Implements it, runs typecheck
@@ -65,45 +99,83 @@ Builds features defined in prd.json. Each iteration:
 ./ralph.sh 50  # max 50 iterations
 ```
 
-### ralph-prd-review.sh - PRD Review
+### ralph-prd-review.sh - PRD Review (Fresh Context)
 
-Reviews PRD before implementation with 4 rotating personas:
+4 personas review PRD requirements:
 - **DEVELOPER** - Technical feasibility, story scoping
 - **QA_ENGINEER** - Testability, verifiable criteria
-- **SECURITY_ENGINEER** - Security implications, data privacy
-- **USER_ADVOCATE** - User perspective, UX concerns
+- **SECURITY_ENGINEER** - Security implications, OWASP
+- **USER_ADVOCATE** - User perspective, UX
 
 ```bash
-./ralph-prd-review.sh 12  # 2 full cycles through 4 personas
+./ralph-prd-review.sh 12
 ```
 
-Output: `prd-review.md` with documented concerns.
+### ralph-code-review.sh - Code Review (Fresh Context)
 
-### ralph-code-review.sh - Code Review
+6 personas polish code, leveraging existing skills:
+- **CODE_REVIEWER** - Uses `/requesting-code-review`, `/systematic-debugging`
+- **SECURITY_ENGINEER** - OWASP Top 10 guide
+- **SYSTEM_ARCHITECT** - Structure, separation of concerns
+- **FRONTEND_DESIGNER** - Uses `/frontend-design`
+- **QA_ENGINEER** - Uses `/test-driven-development`
+- **PROJECT_MANAGER** - Uses `/verification-before-completion`
 
-Reviews code after implementation with 6 rotating personas:
-- **CODE_REVIEWER** - Bugs, edge cases, error handling
-- **SECURITY_ENGINEER** - OWASP top 10, injection, auth
-- **SYSTEM_ARCHITECT** - File structure, separation of concerns
-- **FRONTEND_DESIGNER** - UI/UX, accessibility, responsiveness
-- **QA_ENGINEER** - Tests, coverage, lint, build
-- **PROJECT_MANAGER** - Acceptance criteria verification
-
-Must pass 2 full cycles (12 consecutive iterations) with no issues.
+Must pass 2 full cycles (12 consecutive clean iterations).
 
 ```bash
 ./ralph-code-review.sh 25
 ```
 
-## Required Files
+## Skills
 
-Your project needs:
+### /ralph-init
+
+Full init workflow in a single context:
+1. Create or review PRD
+2. Run 4 persona PRD review (in-context)
+3. Get human approval
+4. Convert to prd.json
+5. Initialize git branch and progress.txt
+6. Output: "Exit and run ./ralph.sh"
+
+```bash
+/ralph-init "Add user authentication with OAuth"
+/ralph-init existing  # Use existing PRD
+```
+
+### /ralph-review
+
+In-context code review for smaller projects:
+- Runs 6 personas in sequence
+- Each persona fixes one issue at a time
+- Continues until 2 clean rounds from all personas
+- Accumulated context helps each persona see previous findings
+
+```bash
+/ralph-review
+```
+
+### /ralph-prd-converter
+
+Converts PRD markdown to prd.json:
+- Extracts user stories
+- Determines dependencies
+- Assigns priorities
+- Creates structured JSON
+
+```bash
+/ralph-prd-converter tasks/prd-my-feature.md
+```
+
+## Required Files
 
 | File | Purpose |
 |------|---------|
 | `tasks/prd-*.md` | PRD file (glob pattern) |
 | `prd.json` | Structured tasks with dependencies |
 | `progress.txt` | Learning log across iterations |
+| `prd-review.md` | PRD review feedback (generated) |
 
 ### prd.json Structure
 
@@ -127,81 +199,29 @@ Your project needs:
 }
 ```
 
-### progress.txt Template
+## Human Gates
 
-```markdown
-# Ralph Progress Log
-Started: [DATE]
-Project: [PROJECT NAME]
+| Gate | Where | What You Review |
+|------|-------|-----------------|
+| **Gate 1** | In `/ralph-init` | PRD captures what you want? |
+| **Gate 2** | In `/ralph-init` | Persona feedback acceptable? |
+| **Gate 3** | After `./ralph.sh` | Implementation sanity check |
+| **Gate 4** | After review | Final approval, merge |
 
-## Codebase Patterns
-(Patterns discovered during implementation)
+## Monitoring
 
----
-```
-
-## Installation
-
-### Prerequisites
-
-- Claude CLI installed: `npm install -g @anthropic-ai/claude-code`
-- `/prd` skill installed at `~/.claude/skills/prd/`
-- `/ralph-prd-converter` skill installed at `~/.claude/skills/ralph-prd-converter/`
-
-### Setup for a New Project
+While Ralph runs:
 
 ```bash
-# 1. Copy scripts
-cp /path/to/ralph-workflow/ralph*.sh ./
-chmod +x ralph*.sh
+# Watch progress
+tail -f ralph.log
 
-# 2. Create PRD
-/prd "Your feature description"
+# Watch commits
+watch -n 5 'git log --oneline -10'
 
-# 3. Review PRD (GATE 1)
-# Edit tasks/prd-*.md as needed
-
-# 4. Run PRD review
-./ralph-prd-review.sh 12
-
-# 5. Review feedback (GATE 2)
-# Check prd-review.md, update PRD if needed
-/ralph-prd-converter tasks/prd-*.md
-
-# 6. Initialize
-git checkout -b feature/your-feature
-cat > progress.txt << 'EOF'
-# Ralph Progress Log
-Started: $(date +%Y-%m-%d)
-Project: Your Project
-
-## Codebase Patterns
----
-EOF
-
-# 7. Run implementation
-./ralph.sh 50
-
-# 8. Sanity check (GATE 3)
-npm run dev
-git log --oneline -20
-
-# 9. Run code review
-./ralph-code-review.sh 25
-
-# 10. Final approval (GATE 4)
-git diff main...HEAD
-gh pr create
+# Check story completion
+cat prd.json | jq '.userStories[] | select(.passes == true) | .id'
 ```
-
-## Why Fresh Context?
-
-| Aspect | Accumulated Context | Fresh Context (Ralph) |
-|--------|--------------------|-----------------------|
-| Memory | In Claude's context | In files (prd.json, git) |
-| Scale | Limited by context window | Unlimited iterations |
-| Confusion | Context accumulates errors | Each iteration starts clean |
-| State | Mixed in-memory + files | Files only |
 
 ## When to Use Ralph
 
@@ -215,26 +235,6 @@ gh pr create
 - Quick fixes (1-2 file changes)
 - Exploratory work without clear requirements
 - Tasks requiring frequent human judgment
-- Production debugging
-
-## Monitoring
-
-While Ralph runs (in another terminal):
-
-```bash
-# Watch progress
-tail -f ralph.log
-
-# Watch commits
-watch -n 5 'git log --oneline -10'
-
-# Check story completion
-cat prd.json | jq '.userStories[] | select(.passes == true) | .id'
-```
-
-## Cancelling
-
-Press `Ctrl+C` in the terminal running the script.
 
 ## Credits
 
