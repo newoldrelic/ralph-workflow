@@ -1,0 +1,62 @@
+{
+  "project": "My Project",
+  "created": "2026-01-12T00:00:00Z",
+  "features": [
+    {
+      "name": "User Authentication",
+      "prdFile": "prd.json",
+      "branch": "feature/auth",
+      "status": "complete",
+      "created": "2026-01-10T10:00:00Z",
+      "lastUpdated": "2026-01-11T15:30:00Z",
+      "notes": "Completed in 12 iterations",
+      "releases": [
+        {
+          "date": "2026-01-11T15:30:00Z",
+          "commit": "abc123def",
+          "type": "full",
+          "storiesIncluded": ["US-001", "US-002", "US-003"],
+          "notes": "Full release - all auth stories"
+        }
+      ]
+    },
+    {
+      "name": "Product Catalog",
+      "prdFile": "features/catalog-prd.json",
+      "branch": "feature/catalog",
+      "status": "partial_release",
+      "created": "2026-01-11T09:00:00Z",
+      "lastUpdated": "2026-01-12T10:00:00Z",
+      "notes": "Client requested early release of browse functionality",
+      "releases": [
+        {
+          "date": "2026-01-12T10:00:00Z",
+          "commit": "def456ghi",
+          "type": "partial",
+          "storiesIncluded": ["US-001", "US-002"],
+          "notes": "Released browse + search, cart pending"
+        }
+      ]
+    },
+    {
+      "name": "Payment Integration",
+      "prdFile": "features/payment-prd.json",
+      "branch": "feature/payments",
+      "status": "in_progress",
+      "created": "2026-01-12T08:00:00Z",
+      "lastUpdated": "2026-01-12T11:00:00Z",
+      "notes": "Working on Stripe integration",
+      "releases": []
+    },
+    {
+      "name": "Email Notifications",
+      "prdFile": "features/email-prd.json",
+      "branch": "feature/email",
+      "status": "planned",
+      "created": "2026-01-12T09:00:00Z",
+      "lastUpdated": "2026-01-12T09:00:00Z",
+      "notes": "",
+      "releases": []
+    }
+  ]
+}
