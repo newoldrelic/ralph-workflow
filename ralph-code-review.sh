@@ -11,14 +11,14 @@ MAX_ITERATIONS=${1:-25}
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_FILE="$SCRIPT_DIR/ralph-code-review.log"
 
-# 6 Code Review Personas
+# 6 Code Review Personas - Each references relevant skills for thorough review
 PERSONAS=(
-    "CODE_REVIEWER|Review code for bugs, edge cases, error handling. Check types are correct. Fix any issues found. Focus on correctness."
-    "SECURITY_ENGINEER|Review for security vulnerabilities: OWASP top 10, injection risks (SQL/XSS/command), auth/authz issues, data validation, secrets handling. Fix any issues."
-    "SYSTEM_ARCHITECT|Review file structure and dependencies. Check separation of concerns, module boundaries, import cycles. Refactor if needed for maintainability."
-    "FRONTEND_DESIGNER|Review UI/UX quality. Check accessibility (a11y), responsiveness, component consistency. Improve visual polish and user experience."
-    "QA_ENGINEER|Run npm test. Check test coverage (aim 90%+). Write missing unit tests for edge cases. Run npm run lint && npm run build. Fix any failures."
-    "PROJECT_MANAGER|Verify ALL acceptance criteria from prd.json are met. Cross-reference each criterion. Document any gaps. Ensure nothing was missed."
+    "CODE_REVIEWER|You have access to the /requesting-code-review and /systematic-debugging skills. Use their principles to review code for bugs, edge cases, error handling. Check types are correct. Look for common issues: null checks, async/await errors, race conditions. Fix any issues found."
+    "SECURITY_ENGINEER|Review for security vulnerabilities using OWASP top 10 as your guide: injection risks (SQL/XSS/command), broken auth, sensitive data exposure, XXE, broken access control, security misconfiguration, XSS, insecure deserialization, known vulnerabilities, insufficient logging. Check secrets handling - no hardcoded keys/passwords. Fix any issues."
+    "SYSTEM_ARCHITECT|Review file structure and dependencies. Check separation of concerns - is business logic mixed with UI? Check module boundaries and import cycles. Look for code duplication that should be abstracted. Ensure consistent patterns across the codebase. Refactor if needed for maintainability."
+    "FRONTEND_DESIGNER|You have access to the /frontend-design skill. Use its principles to review UI/UX quality. Check accessibility (a11y): aria labels, keyboard navigation, color contrast, screen reader support. Check responsiveness across breakpoints. Verify component consistency with design system. Improve visual polish."
+    "QA_ENGINEER|You have access to the /test-driven-development skill. Use its principles. Run npm test. Check test coverage (aim 90%+). Write missing unit tests for edge cases and error paths. Run npm run lint && npm run build. Ensure all tests are meaningful, not just coverage padding. Fix any failures."
+    "PROJECT_MANAGER|You have access to the /verification-before-completion skill. Use its principles. Verify ALL acceptance criteria from prd.json are met - check each one explicitly. Cross-reference the PRD requirements. Document any gaps between spec and implementation. Ensure nothing was missed or partially implemented."
 )
 
 RED='\033[0;31m'

@@ -11,12 +11,12 @@ MAX_ITERATIONS=${1:-12}  # 2 full cycles through 4 personas
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_FILE="$SCRIPT_DIR/ralph-prd-review.log"
 
-# 4 PRD Review Personas
+# 4 PRD Review Personas - Thorough requirements review before implementation
 PERSONAS=(
-    "DEVELOPER|Review technical feasibility. Are stories well-scoped? Are there hidden complexities? Can each be completed in one focused session? Flag any that need splitting or clarification."
-    "QA_ENGINEER|Review testability. Are acceptance criteria specific and verifiable? Can you write a test for each criterion? Flag vague criteria like 'works correctly' or 'performs well'."
-    "SECURITY_ENGINEER|Review security implications. Are there auth/authz requirements? Data privacy concerns? Input validation needs? Potential injection risks? Flag any security gaps."
-    "USER_ADVOCATE|Review from user perspective. Does this solve the actual problem? Are there UX concerns? Missing edge cases? Would a real user be satisfied with this scope?"
+    "DEVELOPER|Review technical feasibility with /test-driven-development principles in mind. Are stories well-scoped for one focused session? Hidden complexities or dependencies? Database migrations needed? API contracts clear? External service integrations specified? Flag stories that should be split (>1 day work) or need technical clarification."
+    "QA_ENGINEER|Review testability - every acceptance criterion must be testable. Can you write an automated test for each criterion? Flag vague criteria: 'works correctly', 'performs well', 'user-friendly'. Each criterion should specify: input, action, expected output. Check for missing error cases, edge cases, boundary conditions."
+    "SECURITY_ENGINEER|Review security with OWASP top 10 in mind. Auth requirements specified? Data classification (PII, sensitive)? Input validation requirements? API security (rate limiting, auth tokens)? Secrets management? GDPR/privacy implications? Flag any story touching user data, auth, or external APIs without security criteria."
+    "USER_ADVOCATE|Review from user perspective using /frontend-design principles. Does this solve the REAL user problem or just the stated one? UX flow make sense? Accessibility considered? Error states defined? Loading states? Empty states? Mobile experience? Would a real user find this valuable and usable? Flag missing user-facing requirements."
 )
 
 RED='\033[0;31m'
