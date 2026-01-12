@@ -8,6 +8,58 @@ Based on the [Ralph technique by Geoffrey Huntley](https://ghuntley.com/ralph/).
 
 Ralph is a bash loop that spawns fresh Claude instances for each iteration. Memory persists in files (prd.json, git), not in Claude's context window. This lets you tackle projects larger than a single context window.
 
+## Why This Approach?
+
+### The Problem
+- Claude's context window is finite - complex projects exceed it
+- Accumulated context leads to confusion and degraded performance
+- Long sessions lose focus on what matters
+
+### The Solution: Fresh Context Per Iteration
+| Aspect | Traditional | Ralph Workflow |
+|--------|-------------|----------------|
+| Context | Accumulates until overflow | Fresh each iteration |
+| Memory | In Claude's context | In files (prd.json, git) |
+| Scale | Limited by context window | Unlimited iterations |
+| Focus | Degrades over time | Sharp every iteration |
+
+### Key Advantages
+
+**1. Unlimited Project Scale**
+- Run 50+ iterations without context overflow
+- Each iteration reads full state from files
+- Projects that would be impossible in one session become routine
+
+**2. Unattended Execution**
+- Start `ralph.sh` and walk away
+- Run overnight for large features
+- Check progress via `ralph.log` and git commits
+
+**3. Quality Through Human Gates**
+- 4 checkpoints prevent building the wrong thing
+- PRD review catches issues before implementation
+- Code review ensures production quality
+
+**4. Multi-Persona Review**
+- 4 personas review PRD (Developer, QA, Security, User Advocate)
+- 6 personas review code (Code, Security, Architecture, Frontend, QA, PM)
+- Different perspectives catch different issues
+
+**5. Partial Release Support**
+- Client needs something early? Release completed stories
+- Manifest tracks what shipped and what's pending
+- Continue implementation after partial release
+
+**6. Accumulated Context Where It Helps**
+- Init phase: personas see what others found
+- Review phase: fixes inform subsequent checks
+- Implementation: fresh context avoids confusion
+
+**7. Easy Multi-Machine Setup**
+- Clone repo, run install script, add to PATH
+- Symlinked skills update with `git pull`
+- Same workflow on laptop, desktop, CI
+
 ## Installation
 
 ### 1. Clone the Repo
