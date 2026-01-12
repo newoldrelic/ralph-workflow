@@ -2,35 +2,68 @@
 
 Autonomous AI development using fresh context windows. Run complex multi-step projects unattended with human gates for quality control.
 
+Based on the [Ralph technique by Geoffrey Huntley](https://ghuntley.com/ralph/). All scripts and skills in this repo were built in-house.
+
 ## TL;DR
 
 Ralph is a bash loop that spawns fresh Claude instances for each iteration. Memory persists in files (prd.json, git), not in Claude's context window. This lets you tackle projects larger than a single context window.
 
+## Installation
+
+### 1. Clone the Repo
+
+```bash
+git clone https://github.com/newoldrelic/ralph-workflow.git ~/Documents/GitHub/ralph-workflow
+```
+
+### 2. Install Skills
+
+The install script creates symlinks so skills stay in sync with repo updates:
+
+```bash
+~/Documents/GitHub/ralph-workflow/install-skills.sh
+```
+
+### 3. Add Scripts to PATH
+
+Add to `~/.zshrc` or `~/.bashrc`:
+
+```bash
+export PATH="$PATH:$HOME/Documents/GitHub/ralph-workflow"
+```
+
+Then reload:
+```bash
+source ~/.zshrc
+```
+
+### 4. Prerequisites
+
+- Claude CLI: `npm install -g @anthropic-ai/claude-code`
+- Node.js (for manifest JSON manipulation)
+
 ## Quick Start
 
 ```bash
-# Add to PATH (recommended - add to ~/.zshrc or ~/.bashrc)
-export PATH="$PATH:$HOME/Documents/GitHub/ralph-workflow"
-
 # In any project, run the init skill (handles PRD + review + setup)
-/ralph-init "Your feature description"
+/wiggum-init "Your feature description"
 
 # Then exit and run implementation in a separate terminal
 ralph.sh prd.json 50
 
 # When complete, run code review
-/ralph-review
+/wiggum-review
 # Or for large projects:
 ralph-code-review.sh prd.json 25
 
 # View status of all features
-ralph-status.sh
+/wiggum-status
 ```
 
 ## The Complete Workflow
 
 ```
-/ralph-init "feature description"
+/wiggum-init "feature description"
     ↓
 [Single Context - Skill]
 ├── Creates PRD (asks clarifying questions)
@@ -42,12 +75,21 @@ ralph-status.sh
     ↓
 ralph.sh prd.json 50  (separate terminal - fresh context per iteration)
     ↓
-/ralph-review or ralph-code-review.sh prd.json
+/wiggum-review or ralph-code-review.sh prd.json
     ↓
 Human final approval → Merge
     ↓
-ralph-release.sh prd.json  (record the release)
+/wiggum-release prd.json  (record the release)
 ```
+
+## Skills (Chief Wiggum oversees Ralph!)
+
+| Skill | Description |
+|-------|-------------|
+| `/wiggum-init` | Initialize feature: PRD creation, 4-persona review, prd.json setup |
+| `/wiggum-review` | In-context 6-persona code review (for projects <20 stories) |
+| `/wiggum-status` | Show status of all tracked features |
+| `/wiggum-release` | Record partial or full release |
 
 ## Scripts
 
@@ -138,46 +180,15 @@ ralph-release.sh prd.json abc123 "Released auth stories for client demo"
 
 | Tool | Context | Best For |
 |------|---------|----------|
-| `/ralph-init` | Single (accumulated) | Init phase - PRD creation, review, setup |
+| `/wiggum-init` | Single (accumulated) | Init phase - PRD creation, review, setup |
 | `ralph.sh` | Fresh per iteration | Implementation - could be 50+ iterations |
-| `/ralph-review` | Single (accumulated) | Code review for smaller projects (<20 stories) |
+| `/wiggum-review` | Single (accumulated) | Code review for smaller projects (<20 stories) |
 | `ralph-code-review.sh` | Fresh per iteration | Code review for larger projects |
 
 **Why the split?**
 - Init benefits from accumulated context (each persona sees what others found)
 - Implementation needs fresh context (could exceed context window)
 - Code review depends on project size
-
-## Installation
-
-### 1. Add Scripts to PATH (Recommended)
-
-```bash
-# Add to ~/.zshrc or ~/.bashrc
-export PATH="$PATH:$HOME/Documents/GitHub/ralph-workflow"
-
-# Reload shell
-source ~/.zshrc
-```
-
-### 2. Skills Location
-
-Skills should be at:
-- `~/.claude/skills/ralph-init/SKILL.md`
-- `~/.claude/skills/ralph-review/SKILL.md`
-- `~/.claude/skills/ralph-prd-converter/SKILL.md`
-
-### 3. Prerequisites
-
-- Claude CLI: `npm install -g @anthropic-ai/claude-code`
-- Node.js (for manifest JSON manipulation)
-- Existing skills that Ralph leverages:
-  - `/prd` - PRD generation
-  - `/frontend-design` - UI/UX review
-  - `/test-driven-development` - Testing principles
-  - `/verification-before-completion` - Acceptance criteria verification
-  - `/requesting-code-review` - Code review principles
-  - `/systematic-debugging` - Debugging approach
 
 ## Manifest Tracking
 
@@ -252,8 +263,8 @@ Ralph uses `ralph-manifest.json` to track multiple features:
 
 | Gate | Where | What You Review |
 |------|-------|-----------------|
-| **Gate 1** | In `/ralph-init` | PRD captures what you want? |
-| **Gate 2** | In `/ralph-init` | Persona feedback acceptable? |
+| **Gate 1** | In `/wiggum-init` | PRD captures what you want? |
+| **Gate 2** | In `/wiggum-init` | Persona feedback acceptable? |
 | **Gate 3** | After `ralph.sh` | Implementation sanity check |
 | **Gate 4** | After review | Final approval, merge |
 
@@ -272,7 +283,7 @@ watch -n 5 'git log --oneline -10'
 cat prd.json | jq '.userStories[] | select(.passes == true) | .id'
 
 # View all features
-ralph-status.sh
+/wiggum-status
 ```
 
 ## When to Use Ralph
@@ -290,4 +301,6 @@ ralph-status.sh
 
 ## Credits
 
-Based on the Ralph technique by [Geoffrey Huntley](https://ghuntley.com/ralph/).
+**Inspiration:** The Ralph technique concept by [Geoffrey Huntley](https://ghuntley.com/ralph/)
+
+**Built in-house:** All scripts and Wiggum skills in this repo
