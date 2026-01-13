@@ -231,11 +231,9 @@ for i in $(seq 1 $MAX_ITERATIONS); do
     # --permission-mode bypassPermissions allows ALL operations without prompts
     cd "$WORK_DIR"
 
-    # Run Claude directly (not backgrounded) so output streams to terminal
-    # Use script to capture output while still showing it (unbuffered)
-    # Use unbuffer if available for real-time output, otherwise use stdbuf
-    if command -v unbuffer &> /dev/null; then
-        unbuffer claude --permission-mode bypassPermissions -p "@$PRD_BASENAME @progress.txt
+    # Run Claude with --output-format text for readable streaming output
+    # tee captures to log while showing on terminal
+    claude --permission-mode bypassPermissions --output-format text -p "@$PRD_BASENAME @progress.txt
 You are implementing features defined in $PRD_BASENAME. This is iteration $i.
 
 FIRST: Announce which story you're working on by outputting:
@@ -255,28 +253,6 @@ COMPLETION:
 - Otherwise, just complete the single feature and exit normally.
 
 ONLY WORK ON A SINGLE FEATURE PER ITERATION." 2>&1 | tee -a "$SESSION_LOG"
-    else
-        stdbuf -oL claude --permission-mode bypassPermissions -p "@$PRD_BASENAME @progress.txt
-You are implementing features defined in $PRD_BASENAME. This is iteration $i.
-
-FIRST: Announce which story you're working on by outputting:
->>> WORKING ON: [Story ID] - [Story Title]
-
-INSTRUCTIONS:
-1. Find the highest-priority incomplete feature to work on. Look for stories where passes=false and all dependsOn stories have passes=true.
-2. Implement ONLY that single feature. Do not work on multiple features.
-3. Verify your work: run 'npm run typecheck' and any relevant tests.
-4. Update $PRD_BASENAME: set the story's passes to true, add notes about what you learned.
-5. Append your progress to progress.txt with: date, story ID, what was done, files changed.
-6. Make a git commit for this feature.
-
-COMPLETION:
-- If ALL stories have passes=true, output: <promise>COMPLETE</promise>
-- If you're blocked after 5 attempts on the same story, output: <promise>BLOCKED</promise>
-- Otherwise, just complete the single feature and exit normally.
-
-ONLY WORK ON A SINGLE FEATURE PER ITERATION." 2>&1 | tee -a "$SESSION_LOG"
-    fi
 
     EXIT_CODE=${PIPESTATUS[0]}
 
