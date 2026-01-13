@@ -8,6 +8,13 @@ Based on the [Ralph technique by Geoffrey Huntley](https://ghuntley.com/ralph/).
 
 Ralph is a bash loop that spawns fresh Claude instances for each iteration. Memory persists in files (prd.json, git), not in Claude's context window. This lets you tackle projects larger than a single context window.
 
+**Key Features:**
+- 🔄 **Auto-tmux** - Sessions survive laptop lid close/disconnect
+- ⌨️ **Smart Ctrl+C** - Single press skips iteration, double press exits
+- 📊 **Live status** - `ralph-status.txt` shows current story and progress
+- 📝 **Session logging** - Full output captured to `ralph-session-*.log`
+- 🔓 **No permission blocks** - Uses `bypassPermissions` mode
+
 ## Why This Approach?
 
 ### The Problem
@@ -93,6 +100,8 @@ source ~/.zshrc
 
 - Claude CLI: `npm install -g @anthropic-ai/claude-code`
 - Node.js (for manifest JSON manipulation)
+- tmux (for session persistence): `brew install tmux` on macOS
+- Optional: `unbuffer` for better live output: `brew install expect` on macOS
 
 ## Quick Start
 
@@ -160,16 +169,33 @@ All scripts take explicit file arguments for clarity:
 
 Each iteration:
 1. Reads `prd.json` and `progress.txt` for full context
-2. Picks highest-priority incomplete story
-3. Implements it, runs typecheck
-4. Updates prd.json, commits
-5. Exits (script loops with fresh context)
+2. Shows available stories (with dependency tracking)
+3. Claude announces which story it's working on: `>>> WORKING ON: US-001 - Story Title`
+4. Implements it, runs typecheck
+5. Updates prd.json, commits
+6. Exits (script loops with fresh context)
 
 On completion, auto-suggests review type based on story count.
 
 ```bash
 ralph.sh prd.json 50  # max 50 iterations
 ```
+
+**Automatic tmux wrapping:**
+- Script automatically starts in a tmux session
+- Session survives laptop lid close, SSH disconnect, etc.
+- To detach: `Ctrl+B` then `D`
+- To reattach: `tmux attach -t ralph-<project-name>`
+- Disable with: `RALPH_NO_TMUX=1 ralph.sh prd.json`
+
+**Ctrl+C handling:**
+- Single `Ctrl+C`: Skips current iteration, continues to next
+- Double `Ctrl+C` (within 2 seconds): Exits Ralph completely
+
+**Generated files:**
+- `ralph-status.txt` - Current iteration, story, and status (for quick checks)
+- `ralph-session-YYYYMMDD-HHMMSS.log` - Full session output
+- `ralph.log` - Compact iteration log
 
 ### ralph-prd-review.sh - PRD Review
 
@@ -288,6 +314,9 @@ Ralph uses `ralph-manifest.json` to track multiple features:
 | `progress.txt` | Learning log across iterations |
 | `ralph-manifest.json` | Tracks all features |
 | `prd-review.md` | PRD review feedback (generated) |
+| `ralph-status.txt` | Current Ralph status (generated) |
+| `ralph-session-*.log` | Full session output (generated) |
+| `ralph.log` | Compact iteration log (generated) |
 
 ### prd.json Structure
 
@@ -325,7 +354,13 @@ Ralph uses `ralph-manifest.json` to track multiple features:
 While Ralph runs:
 
 ```bash
-# Watch progress
+# Quick status check
+cat ralph-status.txt
+
+# Watch live output (from another terminal)
+tail -f ralph-session-*.log
+
+# Watch progress log
 tail -f ralph.log
 
 # Watch commits
@@ -336,7 +371,47 @@ cat prd.json | jq '.userStories[] | select(.passes == true) | .id'
 
 # View all features
 /wiggum-status
+
+# Reattach to tmux session (if disconnected)
+tmux attach -t ralph-<project-name>
 ```
+
+## Troubleshooting
+
+### MCP Server Errors
+If you see errors like `MCP server github invalid: Missing environment variables`:
+
+```bash
+# Option 1: Set required environment variables
+export GITHUB_PERSONAL_ACCESS_TOKEN="your-token"
+export GREPTILE_API_KEY="your-key"
+
+# Option 2: Use minimal Claude config for Ralph
+# Create ~/.claude/ralph-config.json with minimal MCP servers
+```
+
+Ralph's Claude instance inherits your environment and Claude configuration. If you have MCP plugins configured that require API keys, ensure those keys are available in the shell where you run ralph.sh.
+
+### No Live Output
+If you don't see any output:
+1. Check if tmux session is running: `tmux list-sessions`
+2. Reattach to session: `tmux attach -t ralph-<project-name>`
+3. Check session log: `tail -f ralph-session-*.log`
+4. Check for errors in log file
+
+### Claude Hangs or Takes Forever
+Common causes:
+- MCP plugins failing to initialize (see above)
+- Permission blocks (should not happen with `bypassPermissions` mode)
+- Network issues reaching Claude API
+
+Check the session log for error messages:
+```bash
+tail -100 ralph-session-*.log | grep -i error
+```
+
+### Permission Blocks
+Ralph uses `--permission-mode bypassPermissions` which should allow all operations. If you still see permission issues, ensure you're using the latest version of ralph.sh.
 
 ## When to Use Ralph
 
