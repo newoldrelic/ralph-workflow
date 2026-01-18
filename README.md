@@ -1,106 +1,93 @@
 # Ralph Workflow
 
-Autonomous AI development using fresh context windows. Run complex multi-step projects unattended with human gates for quality control.
+**From vibe-coding to production grade AI-assisted development.**
+
+Run complex multi-step projects unattended with fresh context per iteration and multi-persona review.
 
 Based on the [Ralph technique by Geoffrey Huntley](https://ghuntley.com/ralph/). All scripts and skills in this repo were built in-house.
 
 ## TL;DR
 
-Ralph is a bash loop that spawns fresh Claude instances for each iteration. Memory persists in files (prd.json, git), not in Claude's context window. This lets you tackle projects larger than a single context window.
-
-**Key Features:**
-- 🔄 **Auto-tmux** - Sessions survive laptop lid close/disconnect
-- ⌨️ **Smart Ctrl+C** - Single press skips iteration, double press exits
-- 📊 **Live status** - `ralph-status.txt` shows current story and progress
-- 📝 **Session logging** - Full output captured to `ralph-session-*.log`
-- 🔓 **No permission blocks** - Uses `bypassPermissions` mode
-- 🧪 **TDD-first** - Test specs defined at PRD time, enforced during implementation
-- 📚 **Documentation tracking** - Docs are acceptance criteria, not afterthoughts
-
-## Workflow Overview
-
 ```mermaid
 flowchart TD
-    subgraph PLAN ["📋 PLAN"]
+    subgraph PLAN ["PLAN"]
         A["/wiggum-prd<br/>Create PRD + 5-persona review"]
     end
 
-    subgraph BUILD ["🔨 BUILD"]
+    subgraph BUILD ["BUILD"]
         B["ralph.sh<br/>TDD loop: RED → GREEN → REFACTOR"]
     end
 
-    subgraph REVIEW ["🔍 REVIEW"]
+    subgraph REVIEW ["REVIEW"]
         C["/wiggum-review<br/>6-persona code review"]
     end
 
-    subgraph SHIP ["🚀 SHIP"]
+    subgraph SHIP ["SHIP"]
         D["/wiggum-release<br/>Record release"]
     end
 
-    PLAN -->|"✅ Approve PRD"| BUILD -->|"✅ Sanity check"| REVIEW -->|"✅ Merge"| SHIP
+    PLAN -->|"Approve PRD"| BUILD -->|"Sanity check"| REVIEW -->|"Merge"| SHIP
 ```
+
+Ralph is a bash loop that spawns fresh Claude instances for each iteration. Memory persists in files (prd.json, git), not in Claude's context window.
+
+## Two Requirements for Production AI Development
+
+For any non-trivial AI-assisted project, you need both of these.
+
+### Requirement 1: Verification (The Shadow System)
+
+AI generates features, but not confidence that they work.
+
+Every production system has a "shadow system" - the invisible infrastructure that makes code trustworthy: tests, security reviews, documentation, CI/CD. AI learned from codebases where this shadow system was chronically underinvested (because it's tedious for humans). So AI inherits that bias: ship features, skip verification.
+
+**The problem:** A single reviewer (human or AI) misses things. Different perspectives catch different issues.
+
+**The solution:**
+- **Multi-persona review** - 5 personas review PRD, 6 personas review code
+- **TDD-first** - Test specs defined at PRD time, enforced during implementation
+- **Documentation tracking** - Docs are acceptance criteria, not afterthoughts
+- **Human gates** - 4 checkpoints prevent building the wrong thing
+
+### Requirement 2: Scale (The Context Problem)
+
+Long sessions degrade AI performance.
+
+Claude's context window is finite. As context accumulates, the AI loses focus on what matters. Complex projects exceed any context window. The result: confusion, missed requirements, repeated mistakes.
+
+**The problem:** Projects larger than a context window. Multi-day work. 10+ user stories.
+
+**The solution:**
+- **Fresh context per iteration** - Each BUILD iteration starts clean
+- **Memory in files, not context** - prd.json, progress.txt, git commits persist state
+- **Unlimited scale** - Run 50+ iterations without degradation
+
+### When NOT to Use This Workflow
+
+Quick scripts, throwaway prototypes, single-file fixes. For anything substantial, both pillars become requirements.
+
+## How It Works
+
+| Phase | Tool | What Happens |
+|-------|------|--------------|
+| **PLAN** | `/wiggum-prd` | Create PRD with test specs and docs requirements. 5-persona review catches issues early. |
+| **BUILD** | `ralph.sh` | TDD loop with fresh context per iteration. Writes tests first, implements minimal code, updates docs. |
+| **REVIEW** | `/wiggum-review` | 6-persona code review polishes implementation. Different perspectives catch different issues. |
+| **SHIP** | `/wiggum-release` | Record release. Supports partial releases when clients need something early. |
 
 **Key insight:** Fresh context per iteration during BUILD. Accumulated context during PLAN and REVIEW.
 
-## Why This Approach?
+## Key Features
 
-### The Problem
-- Claude's context window is finite - complex projects exceed it
-- Accumulated context leads to confusion and degraded performance
-- Long sessions lose focus on what matters
-- AI often skips tests and documentation (the "shadow system")
-
-### The Solution: Fresh Context Per Iteration
-| Aspect | Traditional | Ralph Workflow |
-|--------|-------------|----------------|
-| Context | Accumulates until overflow | Fresh each iteration |
-| Memory | In Claude's context | In files (prd.json, git) |
-| Scale | Limited by context window | Unlimited iterations |
-| Focus | Degrades over time | Sharp every iteration |
-| Testing | Often skipped | TDD enforced via test specs |
-| Documentation | Afterthought | Tracked as acceptance criteria |
-
-### Key Advantages
-
-**1. Unlimited Project Scale**
-- Run 50+ iterations without context overflow
-- Each iteration reads full state from files
-- Projects that would be impossible in one session become routine
-
-**2. Unattended Execution**
-- Start `ralph.sh` and walk away
-- Run overnight for large features
-- Check progress via `ralph.log` and git commits
-
-**3. Quality Through Human Gates**
-- 4 checkpoints prevent building the wrong thing
-- PRD review catches issues before implementation
-- Code review ensures production quality
-
-**4. Multi-Persona Review**
-- 5 personas review PRD (Developer, QA, Security, User Advocate, Documentation)
-- 6 personas review code (Code, Security, Architecture, Frontend, QA, PM)
-- Different perspectives catch different issues
-
-**5. TDD-First Development**
-- Test specs defined at PRD time, before any code exists
-- Ralph implements tests FIRST, watches them fail, then writes code
-- No production code without a failing test
-
-**6. Documentation as First-Class Citizen**
-- Each story specifies what documentation it needs
-- ARCHITECTURE.md scaffolding for AI agent context
-- Docs are acceptance criteria - story fails without them
-
-**7. Partial Release Support**
-- Client needs something early? Release completed stories
-- Manifest tracks what shipped and what's pending
-- Continue implementation after partial release
-
-**8. Easy Multi-Machine Setup**
-- Clone repo, run install script, add to PATH
-- Symlinked skills update with `git pull`
-- Same workflow on laptop, desktop, CI
+- **Human gates** - 4 checkpoints at PRD approval, persona review, sanity check, and final merge
+- **Multi-persona review** - 5 personas review PRD, 6 personas review code
+- **TDD-first** - Test specs defined at PRD time, tests written before code
+- **Documentation tracking** - Docs are acceptance criteria, stories fail without them
+- **Auto-tmux** - Sessions survive laptop lid close and SSH disconnects
+- **Smart Ctrl+C** - Single press skips iteration, double press exits
+- **Live status** - `ralph-status.txt` shows current story and progress
+- **Session logging** - Full output captured to `ralph-session-*.log`
+- **No permission blocks** - Uses `bypassPermissions` mode
 
 ## Installation
 
@@ -293,13 +280,13 @@ View all features being tracked:
 ralph-status.sh
 
 # Output:
-# 📊 Ralph Feature Status
+# Ralph Feature Status
 # Project: My Project
 #
-# ✅ User Authentication - complete
-# 📦 Product Catalog - partial_release
-# 🔧 Payment Integration - in_progress
-# 📋 Email Notifications - planned
+# User Authentication - complete
+# Product Catalog - partial_release
+# Payment Integration - in_progress
+# Email Notifications - planned
 ```
 
 ### ralph-release.sh - Record Releases
