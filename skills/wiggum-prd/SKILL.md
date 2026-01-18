@@ -38,18 +38,158 @@ This skill guides you through:
 
 ### If Creating New PRD
 
-Use the `/prd` skill approach:
+#### Step 1a: Clarifying Questions
 
-1. Ask 3-5 clarifying questions about the feature (with lettered options A, B, C, D for quick answers)
-2. Generate a structured PRD with user stories, **test specs, and docs requirements**
-3. Save to `tasks/prd-[feature-name].md`
+Ask 3-5 essential clarifying questions with lettered options:
+
+```
+1. What is the primary goal of this feature?
+   A. [Option based on context]
+   B. [Option]
+   C. [Option]
+   D. Other: [please specify]
+
+2. Who is the target user?
+   A. New users only
+   B. Existing users only
+   C. All users
+   D. Admin users only
+
+3. What is the scope?
+   A. Minimal viable version
+   B. Full-featured implementation
+   C. Just the backend/API
+   D. Just the UI
+
+4. Does this feature introduce new patterns or architecture?
+   A. Yes - new backend pattern (needs ARCHITECTURE.md update)
+   B. Yes - new frontend pattern (needs COMPONENTS.md update)
+   C. Yes - new API endpoints (needs API.md update)
+   D. No - follows existing patterns
+
+5. What's the testing approach?
+   A. Unit tests for business logic
+   B. Integration tests for API endpoints
+   C. E2E tests for user flows
+   D. All of the above
+```
+
+This lets users respond with "1A, 2C, 3D, 4D, 5A" for quick iteration.
+
+#### Step 1b: Generate PRD with Stories
+
+Each story needs:
+- **Title:** Short descriptive name
+- **Description:** "As a [user], I want [feature] so that [benefit]"
+- **Acceptance Criteria:** Verifiable checklist (not vague)
+- **Test Spec:** What tests will prove this works (TDD-first)
+- **Docs Required:** What documentation this story needs
+
+**Story Format:**
+```markdown
+### US-001: [Title]
+**Description:** As a [user], I want [feature] so that [benefit].
+
+**Acceptance Criteria:**
+- [ ] Specific verifiable criterion
+- [ ] Another criterion
+- [ ] npm run typecheck passes
+- [ ] All tests pass (see Test Spec)
+- [ ] **[UI stories only]** Verify in browser using dev-browser skill
+
+**Test Spec:**
+- [ ] Test: [describe what test should verify]
+- [ ] Test: [another test case]
+- [ ] Edge case: [edge case to test]
+
+**Docs Required:** [None | Update ARCHITECTURE.md | Add to API.md | etc.]
+```
+
+**Writing Testable Acceptance Criteria:**
+
+| Bad (Vague) | Good (Testable) |
+|-------------|-----------------|
+| "Works correctly" | "Returns 200 with user object when valid ID provided" |
+| "Handles errors" | "Returns 400 with message 'Email required' when email is empty" |
+| "Performs well" | "Responds in <200ms for 95th percentile" |
+| "Is secure" | "Rejects requests without valid JWT token (401)" |
+
+**When to Add Docs Required:**
+
+| Scenario | Documentation Needed |
+|----------|---------------------|
+| Introduces new architecture pattern | Update ARCHITECTURE.md |
+| Adds/changes API endpoints | Update API.md |
+| Creates new component pattern | Update COMPONENTS.md |
+| Makes important design decision | Add ADR in docs/decisions/ |
+| None of the above | `Docs Required: None` |
+
+#### Step 1c: Story-by-Story Review (REQUIRED)
+
+Present each story ONE AT A TIME for user validation:
+
+```
+### Story Review
+
+**US-001: [Title]**
+> As a [user], I want [feature] so that [benefit].
+
+Acceptance Criteria:
+- [ ] Criterion 1
+- [ ] Criterion 2
+- [ ] npm run typecheck passes
+- [ ] All tests pass
+
+Test Spec:
+- [ ] Test: [test case 1]
+- [ ] Test: [test case 2]
+
+Docs Required: [None | specific docs]
+
+**Review Checklist:**
+- Acceptance criteria are testable (not vague)?
+- Test spec covers happy path + edge cases?
+- Documentation identified if needed?
+
+**Options:**
+A. Approve this story
+B. Edit this story (tell me what to change)
+C. Remove this story
+D. Split into multiple stories
+E. Test spec needs more cases
+```
+
+Wait for user response before moving to next story.
+
+**Quick Approval Option (for 8+ stories):**
+
+```
+### Story Summary (12 stories)
+
+1. US-001: Add email capture form (2 tests)
+2. US-002: Validate email format (3 tests)
+3. US-003: Store email in database (2 tests)
+...
+
+Total: 12 stories, 24 test cases, 3 require documentation updates
+
+**Options:**
+A. Review each story individually
+B. Approve all and proceed (I trust you)
+C. I want to edit some - show me #[numbers]
+```
+
+#### Step 1d: Save PRD
+
+Save to `tasks/prd-[feature-name].md`
 
 ### If Using Existing PRD
 
 1. Read the PRD file(s) in `tasks/prd-*.md`
-2. Display a summary of user stories
+2. Display a summary of user stories with test spec and docs counts
 3. Check for Test Spec and Docs Required fields - flag if missing
 4. Ask: "Does this PRD capture what you want? Any changes needed?"
+5. If changes needed, go through story-by-story review for affected stories
 
 ---
 
