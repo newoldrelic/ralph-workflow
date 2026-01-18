@@ -20,7 +20,7 @@ Ralph is a bash loop that spawns fresh Claude instances for each iteration. Memo
 ## Workflow Overview
 
 ```mermaid
-flowchart LR
+flowchart TD
     subgraph PLAN ["📋 PLAN"]
         A["/wiggum-prd<br/>Create PRD + 5-persona review"]
     end
