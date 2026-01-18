@@ -21,10 +21,26 @@ Ralph is a bash loop that spawns fresh Claude instances for each iteration. Memo
 
 ```mermaid
 flowchart LR
-    A["/wiggum-prd"] --> B["🚦 Approve"] --> C["ralph.sh"] --> D["🚦 Check"] --> E["/wiggum-review"] --> F["🚦 Merge"] --> G["/wiggum-release"]
+    subgraph PLAN ["📋 PLAN"]
+        A["/wiggum-prd<br/>Create PRD + 5-persona review"]
+    end
+
+    subgraph BUILD ["🔨 BUILD"]
+        B["ralph.sh<br/>TDD loop: RED → GREEN → REFACTOR"]
+    end
+
+    subgraph REVIEW ["🔍 REVIEW"]
+        C["/wiggum-review<br/>6-persona code review"]
+    end
+
+    subgraph SHIP ["🚀 SHIP"]
+        D["/wiggum-release<br/>Record release"]
+    end
+
+    PLAN -->|"✅ Approve PRD"| BUILD -->|"✅ Sanity check"| REVIEW -->|"✅ Merge"| SHIP
 ```
 
-**The loop:** Create PRD → Human approves → TDD implementation → Human checks → Code review → Human merges → Record release
+**Key insight:** Fresh context per iteration during BUILD. Accumulated context during PLAN and REVIEW.
 
 ## Why This Approach?
 
