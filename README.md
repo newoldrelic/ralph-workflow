@@ -1,8 +1,8 @@
-# Ralph Workflow
+# AI-Assisted Development Workflow
 
 **From vibe-coding to production grade AI-assisted development.**
 
-Run complex multi-step projects unattended with fresh context per iteration and multi-persona review.
+Develop complex projects and features unattended with fresh context windows for best results. 5 personas (Developer, QA, Security, User Advocate, Documentation) review stories. 6 personas (Code, Security, Architecture, Frontend, QA, PM) review code.
 
 Based on the [Ralph technique by Geoffrey Huntley](https://ghuntley.com/ralph/). All scripts and skills in this repo were built in-house.
 
