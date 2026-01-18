@@ -131,6 +131,21 @@ Project: $FEATURE_NAME
 ## Codebase Patterns
 (Patterns discovered during implementation)
 
+## Testing Approach
+- Test framework: (to be discovered)
+- Test location: (to be discovered)
+- Run tests: (to be discovered)
+
+## Documentation
+- ARCHITECTURE.md: (exists/created/not needed)
+- Key files to read first: (to be filled)
+
+## TDD Reminders
+- Write test FIRST, watch it fail (RED)
+- Minimal code to pass (GREEN)
+- Refactor only after green
+- Check testSpec in prd.json for each story
+
 ---
 EOF
     echo -e "${CYAN}Created progress.txt${NC}"
@@ -234,7 +249,7 @@ for i in $(seq 1 $MAX_ITERATIONS); do
     # Run Claude with --output-format text for readable streaming output
     # tee captures to log while showing on terminal
     claude --permission-mode bypassPermissions --output-format text -p "@$PRD_BASENAME @progress.txt
-You are implementing features defined in $PRD_BASENAME. This is iteration $i.
+You are implementing features defined in $PRD_BASENAME using TDD. This is iteration $i.
 
 FIRST: Announce which story you're working on by outputting:
 >>> WORKING ON: [Story ID] - [Story Title]
@@ -242,12 +257,37 @@ FIRST: Announce which story you're working on by outputting:
 INSTRUCTIONS:
 1. Find the highest-priority incomplete feature to work on. Look for stories where passes=false and all dependsOn stories have passes=true.
 2. Implement ONLY that single feature. Do not work on multiple features.
-3. Verify your work: run 'npm run typecheck' and any relevant tests.
-4. Update $PRD_BASENAME: set the story's passes to true, add notes about what you learned.
-5. Append your progress to progress.txt with: date, story ID, what was done, files changed.
-6. Make a git commit for this feature.
+
+TDD IMPLEMENTATION (MANDATORY):
+For the selected story, follow test-driven development:
+a. READ the testSpec array from the story in $PRD_BASENAME
+b. For EACH test in testSpec:
+   - Write the test FIRST
+   - Run the test - verify it FAILS (RED)
+   - Write minimal code to make it pass
+   - Run the test - verify it PASSES (GREEN)
+   - Refactor if needed (stay GREEN)
+c. If testSpec is empty or missing, define tests based on acceptanceCriteria before implementing.
+
+THE IRON LAW: No production code without a failing test first.
+If you write code before the test: delete it and start over with the test.
+
+DOCUMENTATION:
+- Check the docsRequired field for the story
+- If not 'None', update the specified documentation file BEFORE marking the story complete
+- Documentation is an acceptance criterion - the story fails without it
+
+VERIFICATION:
+3. Run 'npm run typecheck' and all tests.
+4. Verify all tests from testSpec are written and passing.
+5. Verify docsRequired documentation is updated (if applicable).
 
 COMPLETION:
+6. Update $PRD_BASENAME: set the story's passes to true, add notes about what you learned.
+7. Append your progress to progress.txt with: date, story ID, tests written, files changed.
+8. Make a git commit for this feature.
+
+END CONDITIONS:
 - If ALL stories have passes=true, output: <promise>COMPLETE</promise>
 - If you're blocked after 5 attempts on the same story, output: <promise>BLOCKED</promise>
 - Otherwise, just complete the single feature and exit normally.

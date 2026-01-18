@@ -14,6 +14,8 @@ Ralph is a bash loop that spawns fresh Claude instances for each iteration. Memo
 - 📊 **Live status** - `ralph-status.txt` shows current story and progress
 - 📝 **Session logging** - Full output captured to `ralph-session-*.log`
 - 🔓 **No permission blocks** - Uses `bypassPermissions` mode
+- 🧪 **TDD-first** - Test specs defined at PRD time, enforced during implementation
+- 📚 **Documentation tracking** - Docs are acceptance criteria, not afterthoughts
 
 ## Why This Approach?
 
@@ -21,6 +23,7 @@ Ralph is a bash loop that spawns fresh Claude instances for each iteration. Memo
 - Claude's context window is finite - complex projects exceed it
 - Accumulated context leads to confusion and degraded performance
 - Long sessions lose focus on what matters
+- AI often skips tests and documentation (the "shadow system")
 
 ### The Solution: Fresh Context Per Iteration
 | Aspect | Traditional | Ralph Workflow |
@@ -29,6 +32,8 @@ Ralph is a bash loop that spawns fresh Claude instances for each iteration. Memo
 | Memory | In Claude's context | In files (prd.json, git) |
 | Scale | Limited by context window | Unlimited iterations |
 | Focus | Degrades over time | Sharp every iteration |
+| Testing | Often skipped | TDD enforced via test specs |
+| Documentation | Afterthought | Tracked as acceptance criteria |
 
 ### Key Advantages
 
@@ -48,21 +53,26 @@ Ralph is a bash loop that spawns fresh Claude instances for each iteration. Memo
 - Code review ensures production quality
 
 **4. Multi-Persona Review**
-- 4 personas review PRD (Developer, QA, Security, User Advocate)
+- 5 personas review PRD (Developer, QA, Security, User Advocate, Documentation)
 - 6 personas review code (Code, Security, Architecture, Frontend, QA, PM)
 - Different perspectives catch different issues
 
-**5. Partial Release Support**
+**5. TDD-First Development**
+- Test specs defined at PRD time, before any code exists
+- Ralph implements tests FIRST, watches them fail, then writes code
+- No production code without a failing test
+
+**6. Documentation as First-Class Citizen**
+- Each story specifies what documentation it needs
+- ARCHITECTURE.md scaffolding for AI agent context
+- Docs are acceptance criteria - story fails without them
+
+**7. Partial Release Support**
 - Client needs something early? Release completed stories
 - Manifest tracks what shipped and what's pending
 - Continue implementation after partial release
 
-**6. Accumulated Context Where It Helps**
-- Init phase: personas see what others found
-- Review phase: fixes inform subsequent checks
-- Implementation: fresh context avoids confusion
-
-**7. Easy Multi-Machine Setup**
+**8. Easy Multi-Machine Setup**
 - Clone repo, run install script, add to PATH
 - Symlinked skills update with `git pull`
 - Same workflow on laptop, desktop, CI
@@ -106,13 +116,16 @@ source ~/.zshrc
 ## Quick Start
 
 ```bash
-# In any project, run the init skill (handles PRD + review + setup)
-/wiggum-init "Your feature description"
+# 1. Create a PRD (with story-by-story review, test specs, docs requirements)
+/prd "Your feature description"
 
-# Then exit and run implementation in a separate terminal
+# 2. Initialize for Ralph (5-persona review, prd.json, git branch, docs scaffold)
+/wiggum-init existing
+
+# 3. Exit and run TDD implementation in a separate terminal
 ralph.sh prd.json 50
 
-# When complete, run code review
+# 4. When complete, run code review
 /wiggum-review
 # Or for large projects:
 ralph-code-review.sh prd.json 25
@@ -124,17 +137,35 @@ ralph-code-review.sh prd.json 25
 ## The Complete Workflow
 
 ```
-/wiggum-init "feature description"
+/prd "feature description"
     ↓
 [Single Context - Skill]
-├── Creates PRD (asks clarifying questions)
-├── Runs PRD review (4 personas in-context)
+├── Asks clarifying questions (including testing & docs)
+├── Generates PRD with user stories
+├── Each story has: acceptance criteria, TEST SPEC, docs required
+├── Reviews each story with you (approve/edit/remove)
+├── Saves to tasks/prd-[feature].md
+└── Says "Run /wiggum-init existing"
+    ↓
+/wiggum-init existing
+    ↓
+[Single Context - Skill]
+├── Runs PRD review (5 personas in-context)
+│   └── NEW: Documentation Reviewer checks docs requirements
 ├── Gets human approval
-├── Converts to prd.json
+├── Converts to prd.json (with testSpec and docsRequired)
+├── Offers ARCHITECTURE.md scaffolding for new projects
 ├── Inits git branch, progress.txt, manifest
 └── Says "Exit and run ralph.sh prd.json"
     ↓
-ralph.sh prd.json 50  (separate terminal - fresh context per iteration)
+ralph.sh prd.json 50  (separate terminal - TDD per iteration)
+    ↓
+Each iteration:
+├── Reads test spec from prd.json
+├── Writes test FIRST (RED)
+├── Implements minimal code (GREEN)
+├── Updates docs if docsRequired is set
+└── Commits and exits
     ↓
 /wiggum-review or ralph-code-review.sh prd.json
     ↓
@@ -147,7 +178,8 @@ Human final approval → Merge
 
 | Skill | Description |
 |-------|-------------|
-| `/wiggum-init` | Initialize feature: PRD creation, 4-persona review, prd.json setup |
+| `/prd` | Generate a PRD with test specs and docs requirements |
+| `/wiggum-init` | Initialize feature: 5-persona review, prd.json setup, docs scaffold, git branch |
 | `/wiggum-review` | In-context 6-persona code review (for projects <20 stories) |
 | `/wiggum-status` | Show status of all tracked features |
 | `/wiggum-release` | Record partial or full release |
@@ -158,22 +190,24 @@ All scripts take explicit file arguments for clarity:
 
 | Script | Usage | Purpose |
 |--------|-------|---------|
-| `ralph.sh` | `ralph.sh <prd.json> [iterations]` | Implementation loop (fresh context) |
+| `ralph.sh` | `ralph.sh <prd.json> [iterations]` | TDD implementation loop (fresh context) |
 | `ralph-prd-review.sh` | `ralph-prd-review.sh <prd.md> [iterations]` | PRD review with 4 personas |
 | `ralph-code-review.sh` | `ralph-code-review.sh <prd.json> [iterations]` | Code review with 6 personas |
 | `ralph-status.sh` | `ralph-status.sh [manifest]` | Show all feature statuses |
 | `ralph-release.sh` | `ralph-release.sh <prd.json> [commit] [notes]` | Record partial/full release |
 | `ralph-manifest-add.sh` | `ralph-manifest-add.sh <name> <prd> <branch> [status]` | Add feature to manifest |
 
-### ralph.sh - Implementation Loop
+### ralph.sh - TDD Implementation Loop
 
 Each iteration:
 1. Reads `prd.json` and `progress.txt` for full context
 2. Shows available stories (with dependency tracking)
-3. Claude announces which story it's working on: `>>> WORKING ON: US-001 - Story Title`
-4. Implements it, runs typecheck
-5. Updates prd.json, commits
-6. Exits (script loops with fresh context)
+3. **Reads test spec for the story**
+4. **Writes tests FIRST (RED)**
+5. **Implements minimal code to pass (GREEN)**
+6. **Updates documentation if docsRequired is set**
+7. Updates prd.json, commits
+8. Exits (script loops with fresh context)
 
 On completion, auto-suggests review type based on story count.
 
@@ -199,11 +233,12 @@ ralph.sh prd.json 50  # max 50 iterations
 
 ### ralph-prd-review.sh - PRD Review
 
-4 personas review PRD requirements:
-- **DEVELOPER** - Technical feasibility, story scoping
-- **QA_ENGINEER** - Testability, verifiable criteria
-- **SECURITY_ENGINEER** - Security implications, OWASP
+5 personas review PRD requirements:
+- **DEVELOPER** - Technical feasibility, story scoping, test spec realism
+- **QA_ENGINEER** - Testability, verifiable criteria, test spec completeness
+- **SECURITY_ENGINEER** - Security implications, OWASP, security test coverage
 - **USER_ADVOCATE** - User perspective, UX
+- **DOCUMENTATION_REVIEWER** - Docs requirements, AI context needs
 
 ```bash
 ralph-prd-review.sh tasks/prd-my-feature.md 12
@@ -268,52 +303,87 @@ ralph-release.sh prd.json abc123 "Released auth stories for client demo"
 - Implementation needs fresh context (could exceed context window)
 - Code review depends on project size
 
-## Manifest Tracking
+## TDD Integration
 
-Ralph uses `ralph-manifest.json` to track multiple features:
+Ralph enforces test-driven development through test specs defined at PRD time:
 
+### Test Spec in PRD
+```markdown
+### US-002: Display priority indicator
+**Test Spec:**
+- [ ] Test: TaskCard renders PriorityBadge with correct color for 'high'
+- [ ] Test: TaskCard renders PriorityBadge with correct color for 'medium'
+- [ ] Test: PriorityBadge displays correct icon for each level
+- [ ] Edge case: Missing priority defaults to 'medium'
+```
+
+### Test Spec in prd.json
 ```json
 {
-  "project": "My Project",
-  "features": [
-    {
-      "name": "User Authentication",
-      "prdFile": "prd.json",
-      "branch": "feature/auth",
-      "status": "complete",
-      "releases": [
-        {
-          "date": "2026-01-12T10:00:00Z",
-          "commit": "abc123",
-          "type": "full",
-          "storiesIncluded": ["US-001", "US-002"]
-        }
-      ]
-    }
-  ]
+  "id": "US-002",
+  "title": "Display priority indicator",
+  "testSpec": [
+    "Test: TaskCard renders PriorityBadge with correct color for 'high'",
+    "Test: TaskCard renders PriorityBadge with correct color for 'medium'",
+    "Test: PriorityBadge displays correct icon for each level",
+    "Edge case: Missing priority defaults to 'medium'"
+  ],
+  "docsRequired": "Update COMPONENTS.md with PriorityBadge"
 }
 ```
 
-**Valid statuses:**
-- `planned` - PRD created, not started
-- `prd_review` - Under PRD review
-- `in_progress` - Implementation running
-- `implemented` - Implementation complete, awaiting review
-- `reviewing` - Code review in progress
-- `complete` - All done, ready for merge
-- `partial_release` - Some stories released early
-- `blocked` - Needs human intervention
-- `abandoned` - Cancelled
+### TDD Enforcement
+During implementation, Ralph:
+1. Reads test spec from prd.json
+2. Writes test FIRST
+3. Runs test - verifies it FAILS (RED)
+4. Writes minimal code to pass
+5. Runs test - verifies it PASSES (GREEN)
+6. Refactors if needed (stay GREEN)
+
+## Documentation Integration
+
+Documentation is tracked as acceptance criteria, not an afterthought:
+
+### Docs Required Field
+Each story specifies what documentation it needs:
+- `None` - No documentation needed
+- `Update ARCHITECTURE.md` - New pattern introduced
+- `Update API.md` - API changes
+- `Update COMPONENTS.md` - New component pattern
+
+### ARCHITECTURE.md Scaffolding
+For new projects, `/wiggum-init` offers to create an ARCHITECTURE.md scaffold:
+
+```markdown
+# Architecture Overview
+
+## Tech Stack
+- [Framework/language]
+- [Database]
+- [Key libraries]
+
+## Key Patterns
+- [Pattern 1]: [description]
+
+## For AI Agents
+When starting a new session, read this file first to understand:
+1. The tech stack and project structure
+2. Key patterns used in this codebase
+```
+
+This helps fresh Claude instances understand the codebase quickly.
 
 ## Required Files
 
 | File | Purpose |
 |------|---------|
-| `tasks/prd-*.md` | PRD file (markdown) |
-| `prd.json` | Structured tasks with dependencies |
+| `tasks/prd-*.md` | PRD file with test specs and docs requirements |
+| `prd.json` | Structured tasks with testSpec and docsRequired |
 | `progress.txt` | Learning log across iterations |
 | `ralph-manifest.json` | Tracks all features |
 | `prd-review.md` | PRD review feedback (generated) |
+| `ARCHITECTURE.md` | Codebase overview for AI context (optional) |
 | `ralph-status.txt` | Current Ralph status (generated) |
 | `ralph-session-*.log` | Full session output (generated) |
 | `ralph.log` | Compact iteration log (generated) |
@@ -331,6 +401,11 @@ Ralph uses `ralph-manifest.json` to track multiple features:
       "title": "Story title",
       "description": "As a [user], I want...",
       "acceptanceCriteria": ["criterion 1", "criterion 2"],
+      "testSpec": [
+        "Test: description of test case",
+        "Edge case: edge case description"
+      ],
+      "docsRequired": "None | ARCHITECTURE.md | API.md | etc.",
       "priority": 1,
       "dependsOn": [],
       "passes": false,
@@ -345,7 +420,7 @@ Ralph uses `ralph-manifest.json` to track multiple features:
 | Gate | Where | What You Review |
 |------|-------|-----------------|
 | **Gate 1** | In `/wiggum-init` | PRD captures what you want? |
-| **Gate 2** | In `/wiggum-init` | Persona feedback acceptable? |
+| **Gate 2** | In `/wiggum-init` | Persona feedback acceptable? (including docs review) |
 | **Gate 3** | After `ralph.sh` | Implementation sanity check |
 | **Gate 4** | After review | Final approval, merge |
 
@@ -420,6 +495,7 @@ Ralph uses `--permission-mode bypassPermissions` which should allow all operatio
 - Work you want to run unattended (overnight)
 - Greenfield projects with clear requirements
 - Tasks with automatic verification (tests, typecheck)
+- Projects that need good documentation for AI agents
 
 **Not good for:**
 - Quick fixes (1-2 file changes)
