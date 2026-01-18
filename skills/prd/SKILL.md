@@ -16,7 +16,7 @@ Create detailed Product Requirements Documents that are clear, actionable, and s
 3. Generate a DRAFT PRD based on answers
 4. **Review each user story with the user** (approve, edit, or remove)
 5. Save final PRD to `/tasks/prd-[feature-name].md`
-6. **Show next steps** (use /wiggum-init)
+6. **Show next steps** (use /wiggum-prd)
 
 **Important:** Do NOT start implementing. Just create the PRD.
 
@@ -253,7 +253,7 @@ Docs required: [Z] stories need documentation updates
 
 Run the init skill to set up for implementation:
 
-    /wiggum-init existing
+    /wiggum-prd existing
 
 This will:
 1. Review your PRD with 5 personas (Developer, QA, Security, User Advocate, Documentation)
@@ -436,4 +436,4 @@ Before completing:
 - [ ] Non-goals section defines clear boundaries
 - [ ] **Reviewed each story with user (or offered quick approval for 8+)**
 - [ ] Saved to `/tasks/prd-[feature-name].md`
-- [ ] **Showed next steps (/wiggum-init existing)**
+- [ ] **Showed next steps (/wiggum-prd existing)**

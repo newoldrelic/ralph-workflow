@@ -120,7 +120,7 @@ source ~/.zshrc
 /prd "Your feature description"
 
 # 2. Initialize for Ralph (5-persona review, prd.json, git branch, docs scaffold)
-/wiggum-init existing
+/wiggum-prd existing
 
 # 3. Exit and run TDD implementation in a separate terminal
 ralph.sh prd.json 50
@@ -145,9 +145,9 @@ ralph-code-review.sh prd.json 25
 ├── Each story has: acceptance criteria, TEST SPEC, docs required
 ├── Reviews each story with you (approve/edit/remove)
 ├── Saves to tasks/prd-[feature].md
-└── Says "Run /wiggum-init existing"
+└── Says "Run /wiggum-prd existing"
     ↓
-/wiggum-init existing
+/wiggum-prd existing
     ↓
 [Single Context - Skill]
 ├── Runs PRD review (5 personas in-context)
@@ -179,7 +179,7 @@ Human final approval → Merge
 | Skill | Description |
 |-------|-------------|
 | `/prd` | Generate a PRD with test specs and docs requirements |
-| `/wiggum-init` | Initialize feature: 5-persona review, prd.json setup, docs scaffold, git branch |
+| `/wiggum-prd` | Initialize feature: 5-persona review, prd.json setup, docs scaffold, git branch |
 | `/wiggum-review` | In-context 6-persona code review (for projects <20 stories) |
 | `/wiggum-status` | Show status of all tracked features |
 | `/wiggum-release` | Record partial or full release |
@@ -293,7 +293,7 @@ ralph-release.sh prd.json abc123 "Released auth stories for client demo"
 
 | Tool | Context | Best For |
 |------|---------|----------|
-| `/wiggum-init` | Single (accumulated) | Init phase - PRD creation, review, setup |
+| `/wiggum-prd` | Single (accumulated) | Init phase - PRD creation, review, setup |
 | `ralph.sh` | Fresh per iteration | Implementation - could be 50+ iterations |
 | `/wiggum-review` | Single (accumulated) | Code review for smaller projects (<20 stories) |
 | `ralph-code-review.sh` | Fresh per iteration | Code review for larger projects |
@@ -353,7 +353,7 @@ Each story specifies what documentation it needs:
 - `Update COMPONENTS.md` - New component pattern
 
 ### ARCHITECTURE.md Scaffolding
-For new projects, `/wiggum-init` offers to create an ARCHITECTURE.md scaffold:
+For new projects, `/wiggum-prd` offers to create an ARCHITECTURE.md scaffold:
 
 ```markdown
 # Architecture Overview
@@ -419,8 +419,8 @@ This helps fresh Claude instances understand the codebase quickly.
 
 | Gate | Where | What You Review |
 |------|-------|-----------------|
-| **Gate 1** | In `/wiggum-init` | PRD captures what you want? |
-| **Gate 2** | In `/wiggum-init` | Persona feedback acceptable? (including docs review) |
+| **Gate 1** | In `/wiggum-prd` | PRD captures what you want? |
+| **Gate 2** | In `/wiggum-prd` | Persona feedback acceptable? (including docs review) |
 | **Gate 3** | After `ralph.sh` | Implementation sanity check |
 | **Gate 4** | After review | Final approval, merge |
 

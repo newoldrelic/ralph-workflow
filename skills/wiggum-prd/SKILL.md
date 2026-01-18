@@ -1,11 +1,13 @@
 ---
-name: wiggum-init
-description: "Initialize a feature for Ralph autonomous development. Creates PRD, runs 5-persona review, converts to prd.json, sets up git/manifest. Use before running ralph.sh."
+name: wiggum-prd
+description: "Create and validate a PRD for Ralph autonomous development. Creates PRD with story-by-story validation, runs 5-persona review, converts to prd.json, sets up git/manifest. Use before running ralph.sh."
 ---
 
-# Wiggum Init
+# Wiggum PRD
 
-Initialize a new feature for autonomous development with Ralph. Chief Wiggum oversees the whole process!
+Create and validate a PRD for autonomous development with Ralph. Chief Wiggum oversees the whole process!
+
+This skill uses `/prd` under the hood for PRD generation, then adds persona review and project setup.
 
 ---
 
@@ -444,14 +446,14 @@ Good luck!
 ## Example Usage
 
 ```bash
-# New feature
-/wiggum-init "Add user authentication with OAuth"
+# New feature - creates PRD with story-by-story validation
+/wiggum-prd "Add user authentication with OAuth"
 
-# Existing PRD
-/wiggum-init existing
+# Existing PRD - skip to persona review
+/wiggum-prd existing
 
 # Specific PRD file
-/wiggum-init tasks/prd-auth-system.md
+/wiggum-prd tasks/prd-auth-system.md
 ```
 
 ---
