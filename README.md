@@ -20,57 +20,11 @@ Ralph is a bash loop that spawns fresh Claude instances for each iteration. Memo
 ## Workflow Overview
 
 ```mermaid
-flowchart TD
-    subgraph PLAN ["📋 PLAN"]
-        A["/wiggum-prd<br/>Create PRD with stories"]
-        B["5-Persona Review<br/>Dev, QA, Security, UX, Docs"]
-    end
-
-    subgraph GATE1 ["🚦 HUMAN GATE"]
-        C{{"Approve PRD?"}}
-    end
-
-    subgraph BUILD ["🔨 BUILD"]
-        D["ralph.sh prd.json 50<br/>TDD Implementation Loop"]
-        E["Each iteration:<br/>RED → GREEN → REFACTOR"]
-    end
-
-    subgraph GATE2 ["🚦 HUMAN GATE"]
-        F{{"Sanity Check?"}}
-    end
-
-    subgraph REVIEW ["🔍 REVIEW"]
-        G["/wiggum-review<br/>6-Persona Code Review"]
-    end
-
-    subgraph GATE3 ["🚦 HUMAN GATE"]
-        H{{"Approve & Merge?"}}
-    end
-
-    subgraph SHIP ["🚀 SHIP"]
-        I["/wiggum-release<br/>Record Release"]
-    end
-
-    A --> B --> C
-    C -->|Yes| D
-    C -->|Edit| A
-    D --> E --> F
-    F -->|Yes| G
-    F -->|Issues| D
-    G --> H
-    H -->|Yes| I
-    H -->|Issues| D
-
-    style PLAN fill:#1e3a5f,stroke:#3b82f6,color:#fff
-    style BUILD fill:#1e3a5f,stroke:#22c55e,color:#fff
-    style REVIEW fill:#1e3a5f,stroke:#a855f7,color:#fff
-    style SHIP fill:#1e3a5f,stroke:#f59e0b,color:#fff
-    style GATE1 fill:#0f172a,stroke:#ef4444,color:#fff
-    style GATE2 fill:#0f172a,stroke:#ef4444,color:#fff
-    style GATE3 fill:#0f172a,stroke:#ef4444,color:#fff
+flowchart LR
+    A["/wiggum-prd"] --> B["🚦 Approve"] --> C["ralph.sh"] --> D["🚦 Check"] --> E["/wiggum-review"] --> F["🚦 Merge"] --> G["/wiggum-release"]
 ```
 
-**Key insight:** Fresh context per iteration during BUILD, accumulated context during PLAN and REVIEW.
+**The loop:** Create PRD → Human approves → TDD implementation → Human checks → Code review → Human merges → Record release
 
 ## Why This Approach?
 
