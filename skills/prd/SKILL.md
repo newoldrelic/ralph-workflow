@@ -178,46 +178,44 @@ Before saving the PRD, you MUST review each user story with the user. This catch
 
 ### Process
 
-1. After drafting all stories, present them ONE AT A TIME:
+1. After drafting all stories, present them ONE AT A TIME.
+
+**Use the AskUserQuestion tool** for interactive selection (arrow keys UI).
+
+For each story, first display the details:
 
 ```
-### Story Review
+### Story Review: US-001
 
-**US-001: [Title]**
+**[Title]**
 > As a [user], I want [feature] so that [benefit].
 
-Acceptance Criteria:
+**Acceptance Criteria:**
 - [ ] Criterion 1
 - [ ] Criterion 2
 - [ ] npm run typecheck passes
 - [ ] All tests pass
 
-Test Spec:
+**Test Spec:**
 - [ ] Test: [test case 1]
 - [ ] Test: [test case 2]
 
-Docs Required: [None | specific docs]
-
-**Review Checklist:**
-- Acceptance criteria are testable (not vague)?
-- Test spec covers happy path + edge cases?
-- Documentation identified if needed?
-
-**Options:**
-A. Approve this story
-B. Edit this story (tell me what to change)
-C. Remove this story
-D. Split into multiple stories
-E. Test spec needs more cases
+**Docs Required:** [None | specific docs]
 ```
 
+Then use **AskUserQuestion tool** with options:
+- "Approve this story"
+- "Edit this story"
+- "Remove this story"
+- "Split into multiple stories"
+
 2. Wait for user response before moving to next story
-3. If user chooses B, D, or E, make the changes and re-present for approval
-4. Continue until all stories are reviewed
+3. If user chooses edit or split, make changes and re-present for approval
+4. Continue until all stories reviewed
 
 ### Quick Approval Option
 
-If there are many stories (8+), offer a summary view first:
+If there are many stories (8+), first show a summary:
 
 ```
 ### Story Summary (12 stories)
@@ -228,12 +226,12 @@ If there are many stories (8+), offer a summary view first:
 ...
 
 Total: 12 stories, 24 test cases, 3 require documentation updates
-
-**Options:**
-A. Review each story individually
-B. Approve all and proceed (I trust you)
-C. I want to edit some - show me #[numbers]
 ```
+
+Then use **AskUserQuestion tool** with options:
+- "Review each story individually"
+- "Approve all and proceed"
+- "Edit specific stories (I'll tell you which)"
 
 ---
 
