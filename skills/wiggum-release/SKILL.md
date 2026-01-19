@@ -50,13 +50,20 @@ Read the prd.json to determine:
 - **Full release**: All stories have `passes: true`
 - **Partial release**: Some stories complete, others pending
 
-### Step 3: Get Release Details
+### Step 3: Confirm Release
 
-Ask user (if not provided):
-- Commit hash (default: current HEAD)
-- Release notes
+Use **AskUserQuestion tool** with options:
+- "Proceed with release"
+- "Cancel"
 
-### Step 4: Update Manifest
+### Step 4: Get Release Details
+
+If notes not provided via argument, use **AskUserQuestion tool** to ask:
+- Release notes (description of what's being released)
+
+Default commit to current HEAD unless specified.
+
+### Step 5: Update Manifest
 
 Add release record to `ralph-manifest.json`:
 
@@ -74,7 +81,7 @@ Update feature status:
 - Full release → `complete`
 - Partial release → `partial_release`
 
-### Step 5: Confirm
+### Step 6: Display Summary
 
 Display summary:
 

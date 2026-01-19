@@ -168,7 +168,9 @@ For each story, first display the story details:
 ### Story Review: US-001
 
 **[Title]**
-> As a [user], I want [feature] so that [benefit].
+> As a [user]
+> I want [feature]
+> So that [benefit]
 
 **Acceptance Criteria:**
 - [ ] Criterion 1
