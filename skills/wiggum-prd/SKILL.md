@@ -158,42 +158,44 @@ Each story needs:
 
 #### Step 1c: Story-by-Story Review (REQUIRED)
 
-Present each story ONE AT A TIME for user validation:
+Present each story ONE AT A TIME for user validation.
+
+**Use the AskUserQuestion tool** for interactive selection (arrow keys UI, not plain text options).
+
+For each story, first display the story details:
 
 ```
-### Story Review
+### Story Review: US-001
 
-**US-001: [Title]**
+**[Title]**
 > As a [user], I want [feature] so that [benefit].
 
-Acceptance Criteria:
+**Acceptance Criteria:**
 - [ ] Criterion 1
 - [ ] Criterion 2
 - [ ] npm run typecheck passes
 - [ ] All tests pass
 
-Test Spec:
+**Test Spec:**
 - [ ] Test: [test case 1]
 - [ ] Test: [test case 2]
 
-Docs Required: [None | specific docs]
-
-**Review Checklist:**
-- Acceptance criteria are testable (not vague)?
-- Test spec covers happy path + edge cases?
-- Documentation identified if needed?
-
-**Options:**
-A. Approve this story
-B. Edit this story (tell me what to change)
-C. Remove this story
-D. Split into multiple stories
-E. Test spec needs more cases
+**Docs Required:** [None | specific docs]
 ```
+
+Then use the **AskUserQuestion tool** with these options:
+- "Approve this story"
+- "Edit this story"
+- "Remove this story"
+- "Split into multiple stories"
+
+The tool provides an interactive UI where users can use arrow keys to select, or type custom input via "Other".
 
 Wait for user response before moving to next story.
 
 **Quick Approval Option (for 8+ stories):**
+
+For larger PRDs, first show a summary:
 
 ```
 ### Story Summary (12 stories)
@@ -204,12 +206,12 @@ Wait for user response before moving to next story.
 ...
 
 Total: 12 stories, 24 test cases, 3 require documentation updates
-
-**Options:**
-A. Review each story individually
-B. Approve all and proceed (I trust you)
-C. I want to edit some - show me #[numbers]
 ```
+
+Then use **AskUserQuestion tool** with options:
+- "Review each story individually"
+- "Approve all and proceed"
+- "Edit specific stories (I'll tell you which)"
 
 #### Step 1d: Save PRD
 
@@ -318,14 +320,14 @@ Present the review findings to the user:
 
 ### Recommended Changes:
 [Specific suggestions if any]
-
-**Do you want to:**
-A. Proceed with current PRD (concerns noted but acceptable)
-B. Update the PRD first (I'll help you edit it)
-C. Cancel and start over
 ```
 
-If user chooses B, help them update the PRD, then re-run the relevant persona reviews.
+Then use **AskUserQuestion tool** with options:
+- "Proceed with current PRD (concerns noted)"
+- "Update the PRD first"
+- "Cancel and start over"
+
+If user chooses to update, help them edit the PRD, then re-run the relevant persona reviews.
 
 ---
 
