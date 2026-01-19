@@ -246,9 +246,12 @@ for i in $(seq 1 $MAX_ITERATIONS); do
     # --permission-mode bypassPermissions allows ALL operations without prompts
     cd "$WORK_DIR"
 
-    # Run Claude with --output-format text for readable streaming output
+    # Run Claude with --verbose for streaming output visibility
+    # unbuffer (if available) prevents output buffering for real-time display
     # tee captures to log while showing on terminal
-    claude --permission-mode bypassPermissions --output-format text -p "@$PRD_BASENAME @progress.txt
+
+    # Build the prompt
+    PROMPT="@$PRD_BASENAME @progress.txt
 You are implementing features defined in $PRD_BASENAME using TDD. This is iteration $i.
 
 FIRST: Announce which story you're working on by outputting:
@@ -292,7 +295,14 @@ END CONDITIONS:
 - If you're blocked after 5 attempts on the same story, output: <promise>BLOCKED</promise>
 - Otherwise, just complete the single feature and exit normally.
 
-ONLY WORK ON A SINGLE FEATURE PER ITERATION." 2>&1 | tee -a "$SESSION_LOG"
+ONLY WORK ON A SINGLE FEATURE PER ITERATION."
+
+    # Use unbuffer if available for real-time output, otherwise run directly
+    if command -v unbuffer &> /dev/null; then
+        unbuffer claude --permission-mode bypassPermissions --verbose --output-format text -p "$PROMPT" 2>&1 | tee -a "$SESSION_LOG"
+    else
+        claude --permission-mode bypassPermissions --verbose --output-format text -p "$PROMPT" 2>&1 | tee -a "$SESSION_LOG"
+    fi
 
     EXIT_CODE=${PIPESTATUS[0]}
 
