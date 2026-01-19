@@ -7,7 +7,39 @@ description: "Create and validate a PRD for Ralph autonomous development. Create
 
 Create and validate a PRD for autonomous development with Ralph. Chief Wiggum oversees the whole process!
 
-This skill uses `/prd` under the hood for PRD generation, then adds persona review and project setup.
+---
+
+## CRITICAL: CREATE PRD, DO NOT IMPLEMENT
+
+**STOP. READ THIS FIRST.**
+
+This skill creates a PRD (Product Requirements Document). It does NOT implement anything.
+
+**You MUST NOT:**
+- Make any code changes
+- Use Edit or Write tools on source files
+- Implement the feature yourself
+
+**You MAY:**
+- Search/read the codebase to understand context
+- Read existing files to inform the PRD
+- This helps write better, more informed PRDs
+
+**You MUST:**
+1. Ask clarifying questions FIRST (even for "simple" requests)
+2. Generate a PRD document with user stories
+3. Review each story with the user
+4. Run 5-persona review
+5. Create prd.json
+6. Tell user to run `ralph.sh` for implementation
+
+**Even simple requests need PRDs.** A request like "update pricing to £249" still needs:
+- A PRD (even if just 1-2 stories)
+- Story-by-story review
+- 5-persona review
+- prd.json for tracking
+
+This ensures proper review, testing, and documentation.
 
 ---
 
